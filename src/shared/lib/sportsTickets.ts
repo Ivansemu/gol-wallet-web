@@ -3,7 +3,7 @@
 // El estado lo decide SIEMPRE el backend Winzo (worker + backoffice); la app no calcula resultados por su cuenta.
 // Lo usan useSportsTickets (app) y la cartera de la web (gol-wallet-web), así las dos cuentan igual.
 import type { RemoteSlip } from '../types/remote';
-import { remoteOutcome } from './betSync';
+import { matchSelections, remoteOutcome } from './betSync';
 import { cashoutOf, ticketReturn } from './cashout';
 import { isSystemBet } from './systemBets';
 
@@ -77,9 +77,18 @@ export function normalizeTickets(bets: any[]): SportsTicket[] {
 
 /** Aplica el estado del servidor. Selección sin resolver (sin emparejar, sin subir, en juego…) = pendiente. */
 export function withServerState(normalized: SportsTicket[], remote: Record<string, RemoteSlip>): SportsTicket[] {
-  return normalized.map(b => {
+  return normalized.map(input => {
+    let b = input;
     const slip = b._raw.remoteId ? remote[b._raw.remoteId] : undefined;
     const server = slip ? remoteOutcome(slip, b._raw.events ?? []) : null;
+    // Equipo que no se leyó en el boleto («Real Betis - ?»): el del partido emparejado en el servidor
+    if (slip && b.events.some(e => !e.home || !e.away)) {
+      const sels = matchSelections(slip, b._raw.events ?? []);
+      b = { ...b, events: b.events.map((e, i) => {
+        const p = sels[i]?.partido;
+        return (!e.home || !e.away) && p?.home?.name && p?.away?.name ? { ...e, home: p.home.name, away: p.away.name } : e;
+      }) };
+    }
     const legs = b.events.map((_, i) => {
       const o = server?.legs[i];
       return o === 'won' || o === 'lost' || o === 'void' ? o : 'pending' as const;

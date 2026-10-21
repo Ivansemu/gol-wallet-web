@@ -76,7 +76,8 @@ export async function deleteMyAccount() {
 // ─── Boletos ────────────────────────────────────
 const SLIP_FIELDS = `id, status, cashout_amount, raw, bookmaker, stake, total_odds, placed_at, entry, created_at,
   selecciones:bet_selections(id, raw_text, status, progress, market_key, params, fixture_id,
-    partido:fixtures(status, minute, starts_at, home_score, away_score, updated_at, sport))`;
+    partido:fixtures(status, minute, starts_at, home_score, away_score, updated_at, sport,
+      home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name)))`;
 
 let noPayout = false; // servidor sin la columna payout (0017): como la app, se pide sin ella
 

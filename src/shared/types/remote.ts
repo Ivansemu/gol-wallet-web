@@ -16,6 +16,8 @@ export type PartidoResumen = {
   updated_at?: string | null;
   /** football, basketball, hockey… (0020/0021). El minuto solo se muestra en fútbol. */
   sport?: string | null;
+  /** Equipos del partido emparejado: completan el boleto cuando el lector no leyó alguno. */
+  home?: { name: string } | null; away?: { name: string } | null;
 };
 export type RemoteSelection = {
   id: string; raw_text: string | null; status: SelectionStatus; progress: unknown;
