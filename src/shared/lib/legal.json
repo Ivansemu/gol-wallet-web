@@ -1,0 +1,145 @@
+{
+  "updated": "2 de octubre de 2026",
+  "owner": {
+    "name": "Juan Serena Muriel",
+    "nif": "50612815G",
+    "address": "C/ Argentina nº 1, 29738 Rincón de la Victoria (Málaga)",
+    "email": "legal@gol-wallet.com"
+  },
+  "urls": {
+    "privacy": "https://winzo-backend.vercel.app/privacidad.html",
+    "deleteAccount": "https://winzo-backend.vercel.app/borrar-cuenta.html"
+  },
+  "terms": [
+    {
+      "title": "Qué es Gol-Wallet",
+      "paragraphs": [
+        "Gol-Wallet es un registro personal de tus boletos de apuestas deportivas y de lotería. No acepta apuestas, no vende boletos, no es un operador de juego y no está vinculada a ninguna casa de apuestas ni administración de lotería. No incluye publicidad de operadores de juego ni enlaces para apostar.",
+        "Solo pueden usar la app personas mayores de 18 años. Para usarla necesitas una cuenta con un email que hayas confirmado."
+      ]
+    },
+    {
+      "title": "Tu cuenta",
+      "paragraphs": [
+        "Eres responsable de mantener en secreto tu contraseña. Puedes cerrar sesión o eliminar tu cuenta cuando quieras desde Perfil.",
+        "Podemos suspender cuentas que se usen para abusar del servicio (por ejemplo, enviar imágenes masivamente al servicio de lectura) o que pertenezcan a menores de edad."
+      ]
+    },
+    {
+      "title": "Información orientativa",
+      "paragraphs": [
+        "Los estados de tus apuestas, los marcadores, las estadísticas y los importes que ves son orientativos y pueden contener errores o retrasos. El balance y los premios son estimaciones.",
+        "Lo único que vale para cobrar es tu boleto en papel y lo que diga la casa de apuestas o el operador del sorteo. Conserva siempre el boleto."
+      ]
+    },
+    {
+      "title": "Juego responsable",
+      "paragraphs": [
+        "Juega solo con dinero que puedas permitirte perder y nunca para recuperar pérdidas. Si el juego deja de ser una diversión, pide ayuda: en jugarbien.es (Ministerio de Consumo) encontrarás información y recursos."
+      ]
+    },
+    {
+      "title": "Versión de prueba",
+      "paragraphs": [
+        "Mientras Gol-Wallet esté en fase de pruebas (beta) puede tener fallos, cambiar o dejar de estar disponible. Te agradecemos que nos cuentes cualquier problema."
+      ]
+    },
+    {
+      "title": "Responsabilidad y ley aplicable",
+      "paragraphs": [
+        "Gol-Wallet se ofrece gratis y tal cual. No respondemos de decisiones de juego tomadas a partir de la información de la app. Estos términos se rigen por la ley española."
+      ]
+    },
+    {
+      "title": "Cambios",
+      "paragraphs": [
+        "Podemos actualizar estos términos. Si el cambio es importante, te avisaremos en la app."
+      ]
+    }
+  ],
+  "privacy": [
+    {
+      "title": "Responsable",
+      "paragraphs": [
+        "{owner.name} (NIF {owner.nif}), {owner.address}. Contacto: {owner.email}."
+      ]
+    },
+    {
+      "title": "Qué datos tratamos",
+      "paragraphs": [
+        "Datos de tu cuenta: tu email y tu contraseña (guardada cifrada; nadie puede leerla).",
+        "Tus boletos deportivos: casa de apuestas, importes, cuotas, selecciones, fechas, estado y, si lo registras, el cash out. Se guardan en nuestro servidor para seguir sus resultados y que los recuperes en cualquier móvil.",
+        "Tus boletos de lotería: solo se guardan en tu móvil.",
+        "Datos técnicos mínimos que generan los servidores al usar la app (fecha y hora de acceso, dirección IP) para mantener el servicio seguro."
+      ]
+    },
+    {
+      "title": "Para qué y con qué base legal",
+      "paragraphs": [
+        "Para prestarte el servicio que pides al crear la cuenta: guardar tus boletos, leerlos, seguir sus resultados y enviarte los emails de la cuenta (confirmación y recuperación de contraseña). Base legal: la ejecución del contrato (art. 6.1.b RGPD).",
+        "Para evitar abusos y mantener la seguridad. Base legal: nuestro interés legítimo (art. 6.1.f RGPD).",
+        "No usamos tus datos para publicidad, no los vendemos, no te seguimos entre apps ni hacemos perfiles comerciales."
+      ]
+    },
+    {
+      "title": "Fotos de boletos",
+      "paragraphs": [
+        "Cuando fotografías un boleto, la imagen se envía a nuestro servicio de lectura, que usa un proveedor de inteligencia artificial (OpenAI) para extraer el texto. No guardamos la foto: solo los datos del boleto. Según sus condiciones, OpenAI no usa estos datos para entrenar sus modelos y puede conservarlos un máximo de 30 días para prevenir abusos.",
+        "El código QR de los boletos de lotería se lee en tu móvil, sin enviarlo a ningún sitio."
+      ]
+    },
+    {
+      "title": "Quién más trata tus datos",
+      "paragraphs": [
+        "Solo proveedores que necesitamos para que la app funcione, con contrato de encargado del tratamiento: Supabase (base de datos y cuentas), Cloudflare (servicio de lectura), OpenAI (lectura de fotos) y nuestro proveedor de envío de emails.",
+        "Algunos están en Estados Unidos. Esas transferencias se amparan en el Marco de Privacidad de Datos UE-EE. UU. o en las cláusulas contractuales tipo de la Comisión Europea.",
+        "Los marcadores vienen de un proveedor de datos deportivos (API-Football), que no recibe ningún dato tuyo."
+      ]
+    },
+    {
+      "title": "Cuánto tiempo",
+      "paragraphs": [
+        "Mientras tengas la cuenta. Si la eliminas, borramos al momento tu cuenta y tus boletos de nuestro servidor; las copias de seguridad del proveedor se renuevan en pocos días."
+      ]
+    },
+    {
+      "title": "Tus derechos",
+      "paragraphs": [
+        "Puedes acceder a tus datos, corregirlos, borrarlos, llevártelos, oponerte o limitar su uso escribiendo a {owner.email} desde el email de tu cuenta. Para borrarlo todo también puedes usar Perfil → Eliminar cuenta.",
+        "Si crees que no hemos tratado bien tus datos, puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es)."
+      ]
+    },
+    {
+      "title": "Menores",
+      "paragraphs": [
+        "Gol-Wallet es solo para mayores de 18 años. Si sabemos que una cuenta es de un menor, la eliminamos."
+      ]
+    },
+    {
+      "title": "Notificaciones",
+      "paragraphs": [
+        "Los avisos (inicio de tus partidos, día del sorteo, apuestas acertadas o falladas) se generan en tu móvil. Puedes desactivarlos en Perfil → Notificaciones o en los ajustes del sistema."
+      ]
+    }
+  ],
+  "deletion": [
+    {
+      "title": "Desde la app (recomendado)",
+      "paragraphs": [
+        "Abre Gol-Wallet → Perfil → Eliminar cuenta y confírmalo. Se borran al momento tu cuenta y todos tus boletos del servidor y del móvil."
+      ]
+    },
+    {
+      "title": "Sin la app",
+      "paragraphs": [
+        "Escribe a {owner.email} desde el email de tu cuenta con el asunto «Eliminar mi cuenta de Gol-Wallet». La borraremos en un plazo máximo de 30 días y te lo confirmaremos por email."
+      ]
+    },
+    {
+      "title": "Qué se borra",
+      "paragraphs": [
+        "Tu cuenta (email y contraseña), tus boletos deportivos con sus selecciones y estadísticas, y tu perfil. No conservamos nada asociado a ti, salvo lo que la ley nos obligue a guardar, y las copias de seguridad del proveedor, que se renuevan en pocos días."
+      ]
+    }
+  ]
+}
