@@ -74,7 +74,11 @@ export async function install(ctx, db, { signedIn = false } = {}) {
       return json(route, null);
     }
     if (p === '/rest/v1/bet_slips') {
-      if (req.method() === 'GET') return json(route, db.slips);
+      if (req.method() === 'GET') {
+        // Como producción sin 0017: la columna payout no existe
+        if (db.noPayout && /payout/.test(url.searchParams.get('select') ?? '')) return json(route, { code: '42703', message: 'column bet_slips.payout does not exist' }, 400);
+        return json(route, db.noPayout ? db.slips.map(({ payout, ...s }) => s) : db.slips);
+      }
       if (req.method() === 'POST') {
         const row = req.postDataJSON();
         const id = `r-new-${db.sent.slips.length + 1}`;

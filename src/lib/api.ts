@@ -74,12 +74,19 @@ export async function deleteMyAccount() {
 }
 
 // ─── Boletos ────────────────────────────────────
-const SLIP_FIELDS = `id, status, payout, cashout_amount, raw, bookmaker, stake, total_odds, placed_at, entry, created_at,
+const SLIP_FIELDS = `id, status, cashout_amount, raw, bookmaker, stake, total_odds, placed_at, entry, created_at,
   selecciones:bet_selections(id, raw_text, status, progress, market_key, params, fixture_id,
     partido:fixtures(status, minute, starts_at, home_score, away_score, updated_at, sport))`;
 
+let noPayout = false; // servidor sin la columna payout (0017): como la app, se pide sin ella
+
 export async function myWallet() {
-  const { data, error } = await db().from('bet_slips').select(SLIP_FIELDS).order('placed_at', { ascending: false }).limit(1000);
+  const query = (fields: string) => db().from('bet_slips').select(fields).order('placed_at', { ascending: false }).limit(1000);
+  let { data, error } = await query(noPayout ? SLIP_FIELDS : `payout, ${SLIP_FIELDS}`);
+  if (error?.code === '42703' && !noPayout) {  // 42703 = columna inexistente
+    noPayout = true;
+    ({ data, error } = await query(SLIP_FIELDS));
+  }
   if (error) throw error;
   const rows = ((data ?? []) as unknown as ServerSlipRow[]).map(r => ({
     ...r, payout: r.payout == null ? null : Number(r.payout), cashout_amount: r.cashout_amount == null ? null : Number(r.cashout_amount),

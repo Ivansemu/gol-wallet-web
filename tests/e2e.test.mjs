@@ -172,3 +172,12 @@ test('herramientas y páginas legales', async () => {
   assert.deepEqual(errors, []);
   await ctx.close();
 });
+
+test('servidor sin la columna payout (producción antes de 0017): la cartera funciona igual', async () => {
+  const db = seed(); db.noPayout = true;
+  const { page, ctx, errors } = await open('/cartera/', { signedIn: true, db });
+  await page.getByText('Resumen · Deportes').waitFor();
+  assert.ok(await page.getByText('Combinada de 2').first().isVisible());
+  assert.deepEqual(errors, []);
+  await ctx.close();
+});
