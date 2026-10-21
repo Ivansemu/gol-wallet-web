@@ -1,0 +1,89 @@
+# Gol-Wallet web · comprobaciones y despliegue en Cloudflare Pages (subida directa con wrangler).
+#   · Cada push y PR: typecheck, pruebas, build y recorridos en Chromium (Supabase simulado).
+#   · Push a una rama que no es main: despliegue de PREVIEW (<rama>.gol-wallet-web.pages.dev) si hay credenciales.
+#   · Producción: SOLO a mano (Actions → «Gol-Wallet web» → Run workflow, rama main, desplegar = produccion).
+#     Antes comprueba que el Supabase de producción tenga 0031–0032 y affiliate-go; si no, se para.
+# Secretos del repositorio: CLOUDFLARE_API_TOKEN (permiso «Cloudflare Pages: Edit») y CLOUDFLARE_ACCOUNT_ID.
+name: Gol-Wallet web
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      desplegar:
+        description: 'Escribe «produccion» para publicar main en producción'
+        required: true
+        default: 'no'
+
+concurrency:
+  group: web-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build de demo y recorridos en Chromium
+        run: |
+          npx playwright@1.56.1 install --with-deps chromium
+          export CHROMIUM=$(find ~/.cache/ms-playwright -path '*chrome-linux*/chrome' -type f | head -1)
+          npm run build:demo
+          npm run e2e
+
+  preview:
+    needs: check
+    if: github.event_name == 'push' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions: { contents: read }
+    env:
+      HAS_CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci && npm run build
+      - name: Sin credenciales de Cloudflare
+        if: env.HAS_CF != 'true'
+        run: echo "::notice::Faltan CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID; no se despliega la preview."
+      - name: Desplegar preview
+        if: env.HAS_CF == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages project list | grep -q 'gol-wallet-web' || npx wrangler pages project create gol-wallet-web --production-branch=main
+          npx wrangler pages deploy out --project-name=gol-wallet-web --branch="${{ github.ref_name }}" --commit-dirty=true
+
+  production:
+    needs: check
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.desplegar == 'produccion'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions: { contents: read }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: El servidor tiene lo que la web necesita
+        run: npm run check:server
+      - run: npm run build
+      - name: Desplegar en producción
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler pages project list | grep -q 'gol-wallet-web' || npx wrangler pages project create gol-wallet-web --production-branch=main
+          npx wrangler pages deploy out --project-name=gol-wallet-web --branch=main --commit-dirty=true
+      - name: Comprobación tras desplegar
+        run: npm run smoke -- https://gol-wallet-web.pages.dev

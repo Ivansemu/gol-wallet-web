@@ -55,15 +55,32 @@ La lógica SQL real (RLS, afiliados, pausa, sorteos públicos) se prueba en `win
 
 ## Despliegue (Cloudflare Pages)
 
-No está desplegada. Pasos, cuando haya autorización:
+Todo está preparado en el repositorio; **no se ha desplegado nada**. Lo hace GitHub Actions (`.github/workflows/web.yml`):
 
-1. Aplicar `0031_affiliates.sql` y `0032_web_public.sql` y desplegar `affiliate-go` (ver `winzo-backend/docs/OPERACIONES.md §1`).
-2. En Pages, conectar este repositorio. Build: `npm ci && npm run build`. Directorio de salida: `out`.
-3. Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_OCR_WORKER_URL`, `NEXT_PUBLIC_SITE_URL`.
-4. En Supabase → Auth → Redirect URLs: `https://<dominio>/cartera/` y `https://<dominio>/cuenta/nueva-clave/`.
-5. Worker OCR: añadir el dominio de la web a `WEB_ORIGINS`. En `affiliate-go`: `WEB_ORIGIN` con el mismo dominio.
+| Cuándo | Qué hace |
+|---|---|
+| Cada push y PR | typecheck, pruebas, build y los 9 recorridos en Chromium |
+| Push a una rama que no es `main` | preview en `https://<rama>.gol-wallet-web.pages.dev` (si hay credenciales) |
+| A mano: Actions → «Gol-Wallet web» → Run workflow en `main`, escribiendo `produccion` | comprueba el servidor, despliega en producción y hace la comprobación posterior |
 
-Se da por hecho el dominio `gol-wallet.com` (el del email legal). Si es otro, hay que cambiarlo en todos esos sitios.
+Valores públicos de producción en `.env.production` (URL de Supabase y clave **publicable**; nunca la service role).
+`scripts/headers.mjs` genera `out/_headers` (CSP con esas mismas URL, `noindex` y sin caché en `/cartera` y `/cuenta`,
+caché larga en `/_next/static`). `npm run preview:cf` sirve `out/` con el servidor de Cloudflare para probarlo en local.
+
+### Lo que tienes que hacer tú (una vez)
+
+1. **Cloudflare** → Account API tokens → Create token → permiso *Account · Cloudflare Pages · Edit*.
+2. **GitHub** → este repositorio → Settings → Secrets and variables → Actions: `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`.
+3. **GitHub** → Settings → Environments → `production` → *Required reviewers*: tú. Así nadie publica sin tu aprobación.
+4. **Servidor antes de producción** (en este orden, ver `winzo-backend/docs/OPERACIONES.md §1`): copia de seguridad,
+   migraciones 0026–0032 (la 0025b ya está en producción), Edge Function `affiliate-go` con `AFFILIATE_IP_SALT` y `WEB_ORIGIN`,
+   y `WEB_ORIGINS` en el worker OCR. Hasta entonces el paso «El servidor tiene lo que la web necesita» para el despliegue.
+5. **Dominio**: en Cloudflare Pages → gol-wallet-web → Custom domains → `gol-wallet.com`. En Supabase → Auth →
+   URL Configuration → Redirect URLs: `https://gol-wallet.com/cartera/` y `https://gol-wallet.com/cuenta/nueva-clave/`.
+   Mientras no haya dominio, la comprobación posterior usa `https://gol-wallet-web.pages.dev`.
+
+El primer despliegue crea el proyecto `gol-wallet-web` en Cloudflare si no existe. Las previews usan la base de datos
+de producción (no hay otra): se pueden crear cuentas y boletos reales desde ellas.
 
 ## Limitaciones conocidas
 
