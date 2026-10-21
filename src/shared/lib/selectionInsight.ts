@@ -19,7 +19,7 @@ type Names = { home: string; away: string };
 const STATS: Record<string, [string, string]> = {   // [singular, plural]
   corners: ['córner', 'córners'], shots: ['tiro', 'tiros'], shots_on_target: ['tiro a puerta', 'tiros a puerta'],
   fouls: ['falta', 'faltas'], offsides: ['fuera de juego', 'fueras de juego'],
-  yellow_cards: ['amarilla', 'amarillas'], red_cards: ['roja', 'rojas'], goals: ['gol', 'goles'],
+  yellow_cards: ['amarilla', 'amarillas'], red_cards: ['roja', 'rojas'], cards: ['tarjeta', 'tarjetas'], goals: ['gol', 'goles'],
 };
 const n = (count: number, [one, many]: [string, string]) => `${count} ${count === 1 ? one : many}`;
 const falta = (count: number, what: [string, string]) => `${count === 1 ? 'Falta' : 'Faltan'} ${n(count, what)}`;
@@ -73,7 +73,7 @@ function legLabelBase(leg: Leg, names: Names): string {
 }
 
 // Mercados que la app sabe seguir con el marcador del partido entero
-const SCORE_MARKETS = new Set(['match_result', 'total_goals', 'btts', 'total_stat', 'player_stat', 'player_scores']);
+const SCORE_MARKETS = new Set(['match_result', 'double_chance', 'draw_no_bet', 'total_goals', 'btts', 'total_stat', 'player_stat', 'player_scores']);
 /** ¿Hay que fiarse del estado del servidor en vez del marcador? (partes, asiáticos, hándicaps…) */
 const serverOnly = (leg: Leg) => !SCORE_MARKETS.has(leg.market) || (leg.params?.period != null && leg.params.period !== 'ft');
 
@@ -98,6 +98,17 @@ export function describeLeg(leg: Leg, h: number, a: number, progress: Record<str
         ? ` · ${n(Number(p.lead_payout) - mine, ['gol más', 'goles más'])} y se paga` : '';
       if (mine > 0) return { ok: true, text: `${team} gana ${h}-${a}${payout}` };
       return { ok: false, text: `${falta(1 - mine, GOALS)} de ${team}` };
+    }
+    case 'double_chance': {
+      const ok = p.pick === 'home_draw' ? h >= a : p.pick === 'draw_away' ? a >= h : h !== a;
+      const label = legLabel(leg, names);
+      return { ok, text: ok ? `${label}: se cumple con ${h}-${a}` : `${label}: con ${h}-${a} no se cumple` };
+    }
+    case 'draw_no_bet': {
+      if (h === a) return { ok: null, text: `Empate ${h}-${a}: si acaba así, se devuelve` };
+      const mine = p.pick === 'home' ? h - a : a - h;
+      const team = p.pick === 'home' ? names.home : names.away;
+      return mine > 0 ? { ok: true, text: `${team} gana ${h}-${a}` } : { ok: false, text: `${falta(-mine, GOALS)} de ${team} para empatar` };
     }
     case 'total_goals': {
       const cur = p.team === 'home' ? h : p.team === 'away' ? a : h + a;

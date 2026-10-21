@@ -15,6 +15,8 @@ export type SportsBetEvent = {
   pick?: string;
   odds?: number;
   startTime?: string;
+  /** Partido del boleto (1, 2…): varias selecciones del mismo partido («Crear apuesta») comparten número. */
+  group?: number;
 };
 
 export type SportsBetTicket = {

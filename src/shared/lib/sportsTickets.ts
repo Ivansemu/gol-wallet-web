@@ -16,6 +16,8 @@ export type NormalizedEvent = {
   sport?: string;
   home?: string; away?: string; league?: string; competition?: string;
   market?: string; selection?: string; pick?: string; startTime?: string; odds?: number;
+  /** Mismo número = mismo partido («Crear apuesta» con varias selecciones). */
+  group?: number;
 };
 
 export type SportsTicket = {
@@ -55,6 +57,7 @@ export function normalizeTickets(bets: any[]): SportsTicket[] {
           market: e.market || e.marketName, selection: e.selection,
           pick: e.pick, startTime: e.startTime || e.date || e.kickoff || '',
           odds: e.odds != null ? Number(e.odds) : undefined,
+          group: e.group != null ? Number(e.group) : undefined,
         }))
       : [];
     return {

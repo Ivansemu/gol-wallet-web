@@ -88,7 +88,23 @@ function parseEventFields(e: any, i: number): SportsBetEvent {
     odds:      safeNum(e.odds ?? e.cuota ?? e.quota ?? e.odd ?? e.cuotaSeleccion),
     startTime: safeStr(e.startTime ?? e.date ?? e.kickoff ??
                         e.fecha ?? e.hora ?? e.matchTime ?? e.horaInicio),
+    group:     safeNum(e.group ?? e.matchGroup ?? e.partido),
   };
+}
+
+/**
+ * Selecciones del mismo partido (mismo group): lo que se lee en una vale para las demás. Si en una salió el rival
+ * y en otra no («Real Betis - ?»), se completa; igual con la hora y la competición. No inventa nada que no esté.
+ */
+export function fillGroupTeams(events: SportsBetEvent[]): SportsBetEvent[] {
+  const byGroup = new Map<number, SportsBetEvent[]>();
+  for (const e of events) if (e.group != null) byGroup.set(e.group, [...(byGroup.get(e.group) ?? []), e]);
+  return events.map(e => {
+    const sibs = e.group != null ? byGroup.get(e.group) ?? [] : [];
+    if (sibs.length < 2) return e;
+    const first = (k: 'home' | 'away' | 'startTime' | 'league' | 'sport') => e[k] ?? sibs.find(x => x[k])?.[k];
+    return { ...e, home: first('home'), away: first('away'), startTime: first('startTime'), league: first('league'), sport: first('sport') };
+  });
 }
 
 // ─── PARSEO APUESTA DEPORTIVA ─────────────────────────────────────
@@ -113,10 +129,10 @@ export function parseSportsBet(raw: any): SportsBetTicket {
     safeStr(raw.operator ?? raw.header?.operator ?? raw.bookmaker) ?? 'Operador'
   );
   const scannedAt = safeStr(raw.scannedAt) ?? new Date().toISOString();
-  const events: SportsBetEvent[] = safeArr<any>(raw.events).map((event, index) => {
+  const events: SportsBetEvent[] = fillGroupTeams(safeArr<any>(raw.events).map((event, index) => {
     const parsed = parseEvent({ ...event, sport: event.sport ?? event.sportName ?? event.deporte ?? raw.sport ?? raw.deporte }, index);
     return { ...parsed, startTime: fixOcrYear(parsed.startTime, scannedAt) };
-  });
+  }));
 
   return {
     type:      'sports_bet',
@@ -308,6 +324,7 @@ export function sportsBetToRaw(ticket: SportsBetTicket): Record<string, any> {
       pick:      e.pick,
       odds:      e.odds,
       startTime: e.startTime,
+      ...(e.group != null ? { group: e.group } : {}),
       outcome:   'pending',
     })),
   };
